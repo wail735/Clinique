@@ -2,10 +2,11 @@ import nodemailer from "nodemailer";
 
 // Créer le transporter à la demande (lazy) pour s'assurer que les variables .env sont chargées
 const createTransporter = () => {
-  console.log("[sendMail] EMAIL_USER:", process.env.EMAIL_USER);
-  console.log("[sendMail] EMAIL_PASS length:", process.env.EMAIL_PASS?.length);
   return nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    family: 4, // Force IPv4 (Render free tier ne supporte pas IPv6)
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
