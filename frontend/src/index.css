@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        display: inline-block;
+        line-height: 1;
+    }
+    .glass-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .shadow-soft {
+        box-shadow: 0 10px 30px -5px rgba(0, 53, 95, 0.04);
+    }
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+@layer base {
+  .maplibregl-popup-content {
+    @apply bg-transparent! shadow-none! p-0! rounded-none!;
+    }
+  .maplibregl-popup-tip {
+    @apply hidden!;
+    }
+  .maplibregl-ctrl-attrib {
+    @apply bg-background! text-muted-foreground! border-border! rounded-md! border! shadow-sm!;
+    }
+  .maplibregl-ctrl-attrib a {
+    @apply text-muted-foreground!;
+    }
+  .maplibregl-ctrl-attrib a:hover {
+    @apply text-foreground!;
+    }
+  .maplibregl-ctrl-attrib-button {
+    @apply bg-transparent! dark:invert;
+    }
+}
