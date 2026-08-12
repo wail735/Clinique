@@ -1,15 +1,26 @@
 import nodemailer from "nodemailer";
+import { promises as dns } from "dns";
 
-// Créer le transporter à la demande (lazy) pour s'assurer que les variables .env sont chargées
-const createTransporter = () => {
+// Résoudre smtp.gmail.com en IPv4 pour contourner le problème IPv6 de Render
+const getSmtpIpv4 = async () => {
+  try {
+    const addresses = await dns.resolve4("smtp.gmail.com");
+    return addresses[0]; // Première adresse IPv4 disponible
+  } catch {
+    return "smtp.gmail.com"; // Fallback si résolution échoue
+  }
+};
+
+// Créer le transporter en forçant une connexion IPv4
+const createTransporter = async () => {
+  const smtpHost = await getSmtpIpv4();
   return nodemailer.createTransport({
-    host: "smtp.gmail.com",
+    host: smtpHost,
     port: 587,
-    secure: false,       // STARTTLS (plus fiable sur Render)
-    family: 4,           // Force IPv4
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 10000,
+    secure: false,
+    tls: {
+      servername: "smtp.gmail.com", // Validation SSL sur le bon nom de domaine
+    },
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
@@ -18,7 +29,7 @@ const createTransporter = () => {
 };
 
 export const sendSingleEmail = async (options) => {
-  const transporter = createTransporter();
+  const transporter = await createTransporter();
   const mailOptions = {
     from: `Clinique <${process.env.EMAIL_USER}>`,
     to: options.to,
@@ -31,7 +42,7 @@ export const sendSingleEmail = async (options) => {
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const sendBulkEmails = async ({ emails, title, message }) => {
-  const transporter = createTransporter();
+  const transporter = await createTransporter();
   const chunkSize = 50;
   const delayBetweenBatches = 2000;
   let successCount = 0;
