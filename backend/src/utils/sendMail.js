@@ -1,64 +1,44 @@
-import nodemailer from "nodemailer";
-import { promises as dns } from "dns";
+import { Resend } from "resend";
 
-// Résoudre smtp.gmail.com en IPv4 pour contourner le problème IPv6 de Render
-const getSmtpIpv4 = async () => {
-  try {
-    const addresses = await dns.resolve4("smtp.gmail.com");
-    return addresses[0]; // Première adresse IPv4 disponible
-  } catch {
-    return "smtp.gmail.com"; // Fallback si résolution échoue
-  }
-};
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Créer le transporter en forçant une connexion IPv4
-const createTransporter = async () => {
-  const smtpHost = await getSmtpIpv4();
-  return nodemailer.createTransport({
-    host: smtpHost,
-    port: 587,
-    secure: false,
-    tls: {
-      servername: "smtp.gmail.com", // Validation SSL sur le bon nom de domaine
-    },
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
-};
+// Adresse expéditeur - utilise l'email vérifié ou onboarding@resend.dev par défaut
+const FROM_EMAIL = process.env.FROM_EMAIL || "onboarding@resend.dev";
 
 export const sendSingleEmail = async (options) => {
-  const transporter = await createTransporter();
-  const mailOptions = {
-    from: `Clinique <${process.env.EMAIL_USER}>`,
-    to: options.to,
+  const { data, error } = await resend.emails.send({
+    from: `Clinique <${FROM_EMAIL}>`,
+    to: [options.to],
     subject: options.subject,
     html: options.html || `<p>${options.text}</p>`,
-  };
-  return await transporter.sendMail(mailOptions);
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
 };
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const sendBulkEmails = async ({ emails, title, message }) => {
-  const transporter = await createTransporter();
-  const chunkSize = 50;
-  const delayBetweenBatches = 2000;
   let successCount = 0;
   let failureCount = 0;
+  const chunkSize = 50;
+  const delayBetweenBatches = 2000;
 
   console.log(
-    `[Email massif] Debut du traitement pour ${emails.length} destinataires...`
+    `[Email massif] Début du traitement pour ${emails.length} destinataires...`
   );
 
   for (let i = 0; i < emails.length; i += chunkSize) {
     const batch = emails.slice(i, i + chunkSize);
     const promises = batch.map(async (email) => {
       try {
-        await transporter.sendMail({
-          from: `Service Notifications <${process.env.EMAIL_USER}>`,
-          to: email,
+        await resend.emails.send({
+          from: `Service Notifications <${FROM_EMAIL}>`,
+          to: [email],
           subject: title,
           html: `<p>${message}</p>`,
         });
@@ -68,6 +48,7 @@ export const sendBulkEmails = async ({ emails, title, message }) => {
         failureCount++;
       }
     });
+
     await Promise.all(promises);
     console.log(
       `[Email massif] Avancée : ${Math.min(i + chunkSize, emails.length)}/${emails.length} emails traités`

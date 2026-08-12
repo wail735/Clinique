@@ -21,6 +21,7 @@
     "mongoose": "^9.9.1",
     "morgan": "^1.11.0",
     "multer": "^2.2.0",
-    "nodemailer": "^9.0.5"
+    "nodemailer": "^9.0.5",
+    "resend": "^6.19.0"
   }
 }
