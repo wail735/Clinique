@@ -1,23 +1,39 @@
-import { Resend } from "resend";
+// Service d'envoi d'emails via Brevo (Sendinblue) - API HTTP
+const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Email de l'expéditeur (doit être vérifié sur Brevo)
+const SENDER_EMAIL = process.env.SENDER_EMAIL || "chennoufwail@gmail.com";
+const SENDER_NAME = "MedPrecision Clinique";
 
-// Adresse expéditeur - utilise l'email vérifié ou onboarding@resend.dev par défaut
-const FROM_EMAIL = process.env.FROM_EMAIL || "onboarding@resend.dev";
+const sendBrevoEmail = async ({ to, subject, html }) => {
+  const response = await fetch(BREVO_API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "api-key": process.env.BREVO_API_KEY,
+    },
+    body: JSON.stringify({
+      sender: { name: SENDER_NAME, email: SENDER_EMAIL },
+      to: [{ email: to }],
+      subject,
+      htmlContent: html,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Erreur lors de l'envoi de l'email");
+  }
+
+  return await response.json();
+};
 
 export const sendSingleEmail = async (options) => {
-  const { data, error } = await resend.emails.send({
-    from: `Clinique <${FROM_EMAIL}>`,
-    to: [options.to],
+  return await sendBrevoEmail({
+    to: options.to,
     subject: options.subject,
     html: options.html || `<p>${options.text}</p>`,
   });
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return data;
 };
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -36,9 +52,8 @@ export const sendBulkEmails = async ({ emails, title, message }) => {
     const batch = emails.slice(i, i + chunkSize);
     const promises = batch.map(async (email) => {
       try {
-        await resend.emails.send({
-          from: `Service Notifications <${FROM_EMAIL}>`,
-          to: [email],
+        await sendBrevoEmail({
+          to: email,
           subject: title,
           html: `<p>${message}</p>`,
         });
