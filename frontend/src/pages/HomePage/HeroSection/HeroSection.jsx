@@ -83,7 +83,7 @@ const HeroSection = ({ onBookClick }) => {
         ></div>
       </div>
       
-      <div className="container mx-auto px-gutter relative z-20">
+      <div className="container mx-auto max-w-7xl px-gutter relative z-20">
         <div className="max-w-2xl text-white">
           <h1 
             ref={titleRef} 
