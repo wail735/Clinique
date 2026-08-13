@@ -52,16 +52,21 @@ const Navbar = ({ onBookClick }) => {
         "-=0.6"
       );
 
-      tl.from(
+      tl.fromTo(
         buttonRef.current,
         {
-          scale: 0.9,
+          x: 20,
           opacity: 0,
+        },
+        {
+          x: 0,
+          opacity: 1,
           duration: 0.6,
           ease: "back.out(1.5)",
         },
         "-=0.4"
       );
+
     }, navRef);
 
     return () => ctx.revert();
@@ -281,7 +286,7 @@ const Navbar = ({ onBookClick }) => {
         "
       >
         {/* ===================================================
-            LOGO
+            LOGO (LEFT)
         ==================================================== */}
 
         <a
@@ -300,12 +305,11 @@ const Navbar = ({ onBookClick }) => {
             gap-2
           "
         >
-         
           MedPrecision
         </a>
 
         {/* ===================================================
-            DESKTOP NAVIGATION
+            DESKTOP NAVIGATION (CENTER)
         ==================================================== */}
 
         <div className="hidden md:flex items-center gap-8">
@@ -444,27 +448,20 @@ const Navbar = ({ onBookClick }) => {
               "
             />
           </a>
+        </div>
 
-          {/* Login / Signup Button */}
-          <button
-            onClick={onBookClick}
-            className="
-              text-primary
-              font-bold
-              font-label-sm
-              text-label-sm
-              hover:text-primary/80
-              transition-colors
-            "
-          >
-            Se connecter
-          </button>
+        {/* ===================================================
+            RIGHT SIDE: BUTTON + MOBILE HAMBURGER
+        ==================================================== */}
 
-          {/* Appointment Button */}
+        <div className="flex items-center gap-3">
+          {/* Appointment Button — desktop only */}
           <button
             ref={buttonRef}
             onClick={onBookClick}
             className="
+              hidden
+              md:inline-flex
               bg-primary
               text-on-primary
               px-6
@@ -484,46 +481,43 @@ const Navbar = ({ onBookClick }) => {
           >
             Prendre rendez-vous
           </button>
+
+          {/* Mobile Hamburger */}
+          <button
+            ref={mobileButtonRef}
+            onClick={() => setIsMobileOpen((prev) => !prev)}
+            className="
+              md:hidden
+              w-11
+              h-11
+              relative
+              flex
+              justify-center
+              items-center
+              rounded-full
+              bg-surface/50
+              hover:bg-primary/5
+              transition-colors
+              z-50
+              border
+              border-primary/10
+            "
+            aria-label="Menu"
+          >
+            <span
+              className="menu-line absolute w-5 h-[2px] bg-primary rounded-full"
+              style={{ top: "calc(50% - 6px)", transformOrigin: "center" }}
+            />
+            <span
+              className="menu-line absolute w-5 h-[2px] bg-primary rounded-full"
+              style={{ top: "50%", transformOrigin: "center" }}
+            />
+            <span
+              className="menu-line absolute w-5 h-[2px] bg-primary rounded-full"
+              style={{ top: "calc(50% + 6px)", transformOrigin: "center" }}
+            />
+          </button>
         </div>
-
-        {/* ===================================================
-            MOBILE BUTTON
-        ==================================================== */}
-
-        <button
-          ref={mobileButtonRef}
-          onClick={() => setIsMobileOpen((prev) => !prev)}
-          className="
-            md:hidden
-            w-11
-            h-11
-            relative
-            flex
-            justify-center
-            items-center
-            rounded-full
-            bg-surface/50
-            hover:bg-primary/5
-            transition-colors
-            z-50
-            border
-            border-primary/10
-          "
-          aria-label="Menu"
-        >
-          <span
-            className="menu-line absolute w-5 h-[2px] bg-primary rounded-full"
-            style={{ top: "calc(50% - 6px)", transformOrigin: "center" }}
-          />
-          <span
-            className="menu-line absolute w-5 h-[2px] bg-primary rounded-full"
-            style={{ top: "50%", transformOrigin: "center" }}
-          />
-          <span
-            className="menu-line absolute w-5 h-[2px] bg-primary rounded-full"
-            style={{ top: "calc(50% + 6px)", transformOrigin: "center" }}
-          />
-        </button>
       </div>
 
       {/* =====================================================
@@ -623,24 +617,7 @@ const Navbar = ({ onBookClick }) => {
             Contact
           </a>
 
-          {/* Mobile Login / Signup */}
-          <button
-            onClick={() => {
-              setIsMobileOpen(false);
-              onBookClick();
-            }}
-            className="
-              text-primary
-              font-title-lg
-              text-title-lg
-              font-bold
-              hover:text-primary/80
-              transition-colors
-              mt-2
-            "
-          >
-            Se connecter
-          </button>
+
 
           {/* Mobile Appointment */}
           <button
