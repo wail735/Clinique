@@ -74,6 +74,7 @@ export const login = async (req , res) =>{
       name:user.name,
       email:user.email,
       profilePicture:user.profilePicture,
+      role:user.role,
       token:generateToken(user._id),
     })
   }
