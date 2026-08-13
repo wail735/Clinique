@@ -270,6 +270,9 @@ const Navbar = ({ onBookClick }) => {
 
       <div
         className="
+          container
+          mx-auto
+          max-w-7xl
           flex
           justify-between
           items-center
