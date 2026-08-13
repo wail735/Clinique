@@ -445,6 +445,21 @@ const Navbar = ({ onBookClick }) => {
             />
           </a>
 
+          {/* Login / Signup Button */}
+          <button
+            onClick={onBookClick}
+            className="
+              text-primary
+              font-bold
+              font-label-sm
+              text-label-sm
+              hover:text-primary/80
+              transition-colors
+            "
+          >
+            Se connecter
+          </button>
+
           {/* Appointment Button */}
           <button
             ref={buttonRef}
@@ -608,6 +623,25 @@ const Navbar = ({ onBookClick }) => {
             Contact
           </a>
 
+          {/* Mobile Login / Signup */}
+          <button
+            onClick={() => {
+              setIsMobileOpen(false);
+              onBookClick();
+            }}
+            className="
+              text-primary
+              font-title-lg
+              text-title-lg
+              font-bold
+              hover:text-primary/80
+              transition-colors
+              mt-2
+            "
+          >
+            Se connecter
+          </button>
+
           {/* Mobile Appointment */}
           <button
             ref={(el) => (mobileLinksRef.current[4] = el)}
@@ -618,7 +652,7 @@ const Navbar = ({ onBookClick }) => {
             className="
               w-full
               max-w-[250px]
-              mt-4
+              mt-2
               bg-primary
               text-on-primary
               px-6
